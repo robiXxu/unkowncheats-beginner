@@ -7,6 +7,18 @@
 
 using namespace std;
 
+template<class T>
+int getValue(HANDLE& handle, LPCVOID address, T& value) {
+  SIZE_T bytesRead = 0;
+  bool readProcMemory = ReadProcessMemory(handle, (LPCVOID)address, (LPVOID)&value, sizeof(T), &bytesRead);
+  if(readProcMemory == 0) {
+    cout << "ReadProcessMemory failed GetLastError() = " << dec << GetLastError() << endl;
+    return EXIT_FAILURE;
+  }
+  cout << "Bytes Read : " << dec << bytesRead << endl;
+  return 0;
+}
+
 int main() {
 
   HANDLE pHandle = OpenProcess(PROCESS_ALL_ACCESS, false, 17800);
@@ -14,16 +26,15 @@ int main() {
     cout << "Failed to open process. GetLastError() = " << dec << GetLastError() << endl;
     return EXIT_FAILURE;
   }
-  int intRead = 0;
-  SIZE_T bytesRead = 0;
+  cout << "VALUES FROM TARGET PROGRAM" << endl;
 
-  bool readProcMemory = ReadProcessMemory(pHandle, (LPCVOID)0x010FFA28, (LPVOID)&intRead, sizeof(int), &bytesRead);
-  if(readProcMemory == 0) {
-    cout << "ReadProcessMemory failed GetLastError() = " << dec << GetLastError() << endl;
-    return EXIT_FAILURE;
-  }
-  cout << "varInt from target program = " << dec << intRead << endl;
-  cout << "Bytes Read : " << dec << bytesRead << endl;
+  int intRead = 0;
+  getValue<int>(pHandle, (LPCVOID)0x010FFA28, intRead);
+  cout << "varInt = " << dec << intRead << endl;
+  
+  string strRead = "";
+  getValue<string>(pHandle, (LPCVOID)0x010FFA2C, strRead);
+  cout << "strString = " << strRead << endl;
 
   bool closeHandleResult = CloseHandle(pHandle);
   if(closeHandleResult != 0) {
