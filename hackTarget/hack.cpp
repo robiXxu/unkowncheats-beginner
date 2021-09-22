@@ -4,6 +4,7 @@
 #include <processthreadsapi.h>
 #include <handleapi.h>
 #include <errhandlingapi.h>
+#include <vector>
 
 using namespace std;
 
@@ -19,6 +20,17 @@ int getValue(HANDLE& handle, LPCVOID address, T& value) {
   return 0;
 }
 
+uintptr_t readValueOf(uintptr_t baseAddr, vector<uintptr_t> offsets, HANDLE& handle) {
+  uintptr_t addr = baseAddr;
+  int status = 0;
+  for(uintptr_t p : offsets) {
+    status = getValue<uintptr_t>(handle, (LPCVOID) addr, addr);
+    if(status != 0) return addr;
+    addr += p;
+  }
+  return addr;
+}
+
 int main() {
   DWORD pid = 0;
   cout << "PID: ";
@@ -31,15 +43,25 @@ int main() {
   }
   cout << "VALUES FROM TARGET PROGRAM" << endl;
 
-  uintptr_t ptr2IntMem = 0x0;
+  uintptr_t baseAddr = 0x0;
   cout << "Memory address of a pointer: 0x";
-  cin >> hex >> ptr2IntMem;
-  int *ptr2Int;
-  getValue<int*>(pHandle, (LPCVOID)ptr2IntMem, ptr2Int);
-  cout << "ptr2Int(hex) = " << hex << ptr2Int << endl;
-  int intValue;
-  getValue<int>(pHandle, (LPCVOID)ptr2Int, intValue);
-  cout << "ptr2Int(value) = " << dec << intValue << endl;
+  cin >> hex >> baseAddr;
+  vector<uintptr_t> offsets {0x0, 0x0, 0x0}; 
+  uintptr_t valPtr = readValueOf(baseAddr, offsets, pHandle);
+  cout << "Memory address of the value: 0x" << hex << uppercase << valPtr << endl;
+  int val = 0;
+  getValue(pHandle, (LPCVOID)valPtr, val);
+  cout << "Value : " << dec << val << endl;
+
+  //uintptr_t ptr2IntMem = 0x0;
+  //cout << "Memory address of a pointer: 0x";
+  //cin >> hex >> ptr2IntMem;
+  //int *ptr2Int;
+  //getValue<int*>(pHandle, (LPCVOID)ptr2IntMem, ptr2Int);
+  //cout << "ptr2Int(hex) = " << hex << ptr2Int << endl;
+  //int intValue;
+  //getValue<int>(pHandle, (LPCVOID)ptr2Int, intValue);
+  //cout << "ptr2Int(value) = " << dec << intValue << endl;
 
   
 
