@@ -31,23 +31,31 @@ int main() {
   }
   cout << "VALUES FROM TARGET PROGRAM" << endl;
 
-  int intRead = 0;
+  uintptr_t ptr2IntMem = 0x0;
+  cout << "Memory address of a pointer: 0x";
+  cin >> hex >> ptr2IntMem;
+  int *ptr2Int;
+  getValue<int*>(pHandle, (LPCVOID)ptr2IntMem, ptr2Int);
+  cout << "ptr2Int(hex) = " << hex << ptr2Int << endl;
+  int intValue;
+  getValue<int>(pHandle, (LPCVOID)ptr2Int, intValue);
+  cout << "ptr2Int(value) = " << dec << intValue << endl;
 
-  uintptr_t intMemory = 0x0;
-  cout << "Memory Address of the integer (in hex): 0x";
-  cin >> hex >> intMemory;
   
 
-  getValue<int>(pHandle, (LPCVOID)intMemory, intRead);
-  cout << "varInt = " << dec << intRead << endl;
+  //uintptr_t intMemory = 0x0;
+  //cout << "Memory Address of the integer (in hex): 0x";
+  //cin >> hex >> intMemory;
+  //int intRead = 0;
+  //getValue<int>(pHandle, (LPCVOID)intMemory, intRead);
+  //cout << "varInt = " << dec << intRead << endl;
   
-  uintptr_t strMemory = 0x0;
-  cout << "Memory Address of the string (in hex): 0x";
-  cin >> hex >> strMemory;
-
-  string strRead = "";
-  getValue<string>(pHandle, (LPCVOID)strMemory, strRead);
-  cout << "strString = " << strRead << endl;
+  //uintptr_t strMemory = 0x0;
+  //cout << "Memory Address of the string (in hex): 0x";
+  //cin >> hex >> strMemory;
+  //string strRead = "";
+  //getValue<string>(pHandle, (LPCVOID)strMemory, strRead);
+  //cout << "strString = " << strRead << endl;
 
   bool closeHandleResult = CloseHandle(pHandle);
   if(closeHandleResult != 0) {
